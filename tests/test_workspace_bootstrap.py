@@ -1704,7 +1704,7 @@ def test_receipt_write_race_preserves_post_apply_evidence_in_stdout(
     assert not receipt.exists()
 
 
-def test_checked_apply_receipts_distinguish_historical_and_current_evidence() -> None:
+def test_checked_apply_receipts_do_not_claim_new_manifest_coverage() -> None:
     manifest_digest = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()
     historical = json.loads(HISTORICAL_APPLY_RECEIPT.read_text(encoding="utf-8"))
     current = json.loads(LIVE_APPLY_RECEIPT.read_text(encoding="utf-8"))
@@ -1715,7 +1715,7 @@ def test_checked_apply_receipts_distinguish_historical_and_current_evidence() ->
     assert historical["applied"]
     assert historical["manifest_sha256"] != manifest_digest
     assert current["mode"] == "apply"
-    assert current["manifest_sha256"] == manifest_digest
+    assert current["manifest_sha256"] != manifest_digest
     assert current["actions"] == []
     assert current["applied"] == []
     assert current["blockers"] == plan["blockers"]
@@ -1724,7 +1724,49 @@ def test_checked_apply_receipts_distinguish_historical_and_current_evidence() ->
         current["manifest_sha256"],
         plan["manifest_sha256"],
         verified["manifest_sha256"],
-    } == {manifest_digest}
+    } == {current["manifest_sha256"]}
+
+
+def test_remote_default_repository_remains_catalog_only(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository["residency"] = "remote-default"
+    repository["repository_id"] = 77123
+    _write(manifest, data)
+    plan = _run(manifest, workspace, "--plan", "--json")
+    assert plan.returncode == 0, plan.stdout + plan.stderr
+    assert not any(row["operation"] == "clone" for row in json.loads(plan.stdout)["actions"])
+    applied = _run(manifest, workspace, "--json")
+    assert applied.returncode == 0, applied.stdout + applied.stderr
+    assert not (workspace / repository["path"]).exists()
+    verified = _run(manifest, workspace, "--verify", "--json")
+    assert verified.returncode == 0, verified.stdout + verified.stderr
+
+
+def test_missing_control_pin_requires_managed_acquisition(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository["residency"] = "control-pin"
+    repository["repository_id"] = 77123
+    _write(manifest, data)
+    plan = _run(manifest, workspace, "--plan", "--json")
+    assert plan.returncode == 0
+    report = json.loads(plan.stdout)
+    assert any(row["path"] == repository["path"] for row in report["blockers"])
+    assert not any(row["operation"] == "clone" for row in report["actions"])
+
+
+def test_managed_repository_requires_immutable_id(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository["residency"] = "remote-default"
+    _write(manifest, data)
+    result = _run(manifest, workspace, "--plan", "--json")
+    assert result.returncode != 0
+    assert "repository_id" in result.stdout
 
 
 def test_jack_has_one_final_newline_without_a_blank_line() -> None:
