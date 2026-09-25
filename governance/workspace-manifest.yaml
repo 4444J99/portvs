@@ -46,6 +46,15 @@ rows:
 
   - {path: library/shelves, kind: structural, owner_ref: "organvm/portvs#workspace-manifest", residency: structural}
   - {path: library/shelves/organvm-i-theoria, kind: structural, owner_ref: "organvm-i-theoria", residency: structural}
+  - path: library/shelves/organvm-i-theoria/conversation-corpus-engine
+    kind: repository
+    owner_ref: organvm-i-theoria/conversation-corpus-engine
+    residency: remote-default
+    repository_id: 1188128304
+    remote: https://github.com/organvm-i-theoria/conversation-corpus-engine.git
+    custody_ref: refs/remotes/origin/main
+    default_branch: main
+    legacy_paths: [organvm/conversation-corpus-engine]
   - {path: library/shelves/organvm-ii-poiesis, kind: structural, owner_ref: "organvm-ii-poiesis", residency: structural}
   - {path: library/shelves/organvm-iii-ergon, kind: structural, owner_ref: "organvm-iii-ergon", residency: structural}
   - path: library/shelves/organvm-iii-ergon/universal-mail--automation
