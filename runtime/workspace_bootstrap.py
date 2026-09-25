@@ -168,6 +168,10 @@ def load_manifest(path: Path) -> tuple[dict[str, Any], bytes]:
             raise ContractError(f"{rel}: custody_ref must begin with refs/")
         if kind == "repository" and row["residency"] not in {"remote-default", "control-pin", "laptop"}:
             raise ContractError(f"{rel}: unsupported repository residency {row['residency']!r}")
+        if kind == "repository" and row["residency"] != "laptop":
+            repository_id = row.get("repository_id")
+            if not isinstance(repository_id, int) or isinstance(repository_id, bool) or repository_id <= 0:
+                raise ContractError(f"{rel}: managed residency requires a positive immutable repository_id")
         if kind == "ephemeral":
             expires_after = row.get("expires_after")
             if (

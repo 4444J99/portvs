@@ -2,6 +2,9 @@
 
 The Workspace manifest now records five authored repositories as `remote-default`
 catalog entries and keeps PORTVS, Limen, and Domus as `control-pin` infrastructure.
+Each managed row carries its live immutable GitHub repository ID. All eight
+coordinates were resolved against the GitHub API after the `organvm` to `4444J99`
+transfer; Domus's live default branch is `main`, replacing stale `master` metadata.
 The bootstrap accepts an absent remote-default checkout and never clones one from
 this manifest. A missing control pin remains a visible blocker for Limen-managed
 acquisition. Legacy `laptop` rows retain their existing bootstrap behavior only

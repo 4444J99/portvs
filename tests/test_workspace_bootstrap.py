@@ -1732,6 +1732,7 @@ def test_remote_default_repository_remains_catalog_only(tmp_path: Path) -> None:
     data = _load(manifest)
     repository = next(row for row in data["rows"] if row["kind"] == "repository")
     repository["residency"] = "remote-default"
+    repository["repository_id"] = 77123
     _write(manifest, data)
     plan = _run(manifest, workspace, "--plan", "--json")
     assert plan.returncode == 0, plan.stdout + plan.stderr
@@ -1748,12 +1749,24 @@ def test_missing_control_pin_requires_managed_acquisition(tmp_path: Path) -> Non
     data = _load(manifest)
     repository = next(row for row in data["rows"] if row["kind"] == "repository")
     repository["residency"] = "control-pin"
+    repository["repository_id"] = 77123
     _write(manifest, data)
     plan = _run(manifest, workspace, "--plan", "--json")
     assert plan.returncode == 0
     report = json.loads(plan.stdout)
     assert any(row["path"] == repository["path"] for row in report["blockers"])
     assert not any(row["operation"] == "clone" for row in report["actions"])
+
+
+def test_managed_repository_requires_immutable_id(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository["residency"] = "remote-default"
+    _write(manifest, data)
+    result = _run(manifest, workspace, "--plan", "--json")
+    assert result.returncode != 0
+    assert "repository_id" in result.stdout
 
 
 def test_jack_has_one_final_newline_without_a_blank_line() -> None:

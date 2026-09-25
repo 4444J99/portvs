@@ -20,7 +20,8 @@ rows:
     kind: repository
     owner_ref: organvm/application-pipeline
     residency: remote-default
-    remote: https://github.com/organvm/application-pipeline.git
+    repository_id: 1165013001
+    remote: https://github.com/4444J99/application-pipeline.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
     legacy_paths: [4444J99/application-pipeline]
@@ -28,6 +29,7 @@ rows:
     kind: repository
     owner_ref: 4444J99/peer-audited--behavioral-blockchain
     residency: remote-default
+    repository_id: 1164285458
     remote: https://github.com/4444J99/peer-audited--behavioral-blockchain.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -36,6 +38,7 @@ rows:
     kind: repository
     owner_ref: 4444J99/victoroff-os
     residency: remote-default
+    repository_id: 1308157201
     remote: https://github.com/4444J99/victoroff-os.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -49,7 +52,8 @@ rows:
     kind: repository
     owner_ref: organvm/universal-mail--automation
     residency: remote-default
-    remote: https://github.com/organvm/universal-mail--automation.git
+    repository_id: 1138183388
+    remote: https://github.com/4444J99/universal-mail--automation.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
     legacy_paths: [4444J99/universal-mail--automation]
@@ -62,7 +66,8 @@ rows:
     kind: repository
     owner_ref: organvm/organvm-corpvs-testamentvm
     residency: remote-default
-    remote: https://github.com/organvm/organvm-corpvs-testamentvm.git
+    repository_id: 1155264900
+    remote: https://github.com/4444J99/organvm-corpvs-testamentvm.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
     legacy_paths: [4444J99/organvm-corpvs-testamentvm]
@@ -73,7 +78,8 @@ rows:
     kind: repository
     owner_ref: organvm/portvs
     residency: control-pin
-    remote: https://github.com/organvm/portvs.git
+    repository_id: 1257137342
+    remote: https://github.com/4444J99/portvs.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
     legacy_paths: [4444J99/portvs]
@@ -81,7 +87,8 @@ rows:
     kind: repository
     owner_ref: organvm/limen
     residency: control-pin
-    remote: https://github.com/organvm/limen.git
+    repository_id: 1255213941
+    remote: https://github.com/4444J99/limen.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
     legacy_paths: [limen]
@@ -89,9 +96,10 @@ rows:
     kind: repository
     owner_ref: organvm/domus-genoma
     residency: control-pin
-    remote: https://github.com/organvm/domus-genoma.git
-    custody_ref: refs/remotes/origin/master
-    default_branch: master
+    repository_id: 1124448005
+    remote: https://github.com/4444J99/domus-genoma.git
+    custody_ref: refs/remotes/origin/main
+    default_branch: main
     legacy_paths: [domus-genoma]
 
   - {path: library/underworld, kind: structural, owner_ref: "organvm/portvs#archive-index", residency: structural}
