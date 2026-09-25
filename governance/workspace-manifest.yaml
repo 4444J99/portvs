@@ -19,7 +19,7 @@ rows:
   - path: library/storefront/4444J99/application-pipeline
     kind: repository
     owner_ref: organvm/application-pipeline
-    residency: laptop
+    residency: remote-default
     remote: https://github.com/organvm/application-pipeline.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -27,7 +27,7 @@ rows:
   - path: library/storefront/4444J99/peer-audited--behavioral-blockchain
     kind: repository
     owner_ref: 4444J99/peer-audited--behavioral-blockchain
-    residency: laptop
+    residency: remote-default
     remote: https://github.com/4444J99/peer-audited--behavioral-blockchain.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -35,7 +35,7 @@ rows:
   - path: library/storefront/4444J99/victoroff-os
     kind: repository
     owner_ref: 4444J99/victoroff-os
-    residency: laptop
+    residency: remote-default
     remote: https://github.com/4444J99/victoroff-os.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -48,7 +48,7 @@ rows:
   - path: library/shelves/organvm-iii-ergon/universal-mail--automation
     kind: repository
     owner_ref: organvm/universal-mail--automation
-    residency: laptop
+    residency: remote-default
     remote: https://github.com/organvm/universal-mail--automation.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -61,7 +61,7 @@ rows:
   - path: library/shelves/meta-organvm/organvm-corpvs-testamentvm
     kind: repository
     owner_ref: organvm/organvm-corpvs-testamentvm
-    residency: laptop
+    residency: remote-default
     remote: https://github.com/organvm/organvm-corpvs-testamentvm.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -72,7 +72,7 @@ rows:
   - path: library/engine/organvm/portvs
     kind: repository
     owner_ref: organvm/portvs
-    residency: laptop
+    residency: control-pin
     remote: https://github.com/organvm/portvs.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -80,7 +80,7 @@ rows:
   - path: library/engine/organvm/limen
     kind: repository
     owner_ref: organvm/limen
-    residency: laptop
+    residency: control-pin
     remote: https://github.com/organvm/limen.git
     custody_ref: refs/remotes/origin/main
     default_branch: main
@@ -88,7 +88,7 @@ rows:
   - path: library/engine/organvm/domus-genoma
     kind: repository
     owner_ref: organvm/domus-genoma
-    residency: laptop
+    residency: control-pin
     remote: https://github.com/organvm/domus-genoma.git
     custody_ref: refs/remotes/origin/master
     default_branch: master

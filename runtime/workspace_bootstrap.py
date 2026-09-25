@@ -166,6 +166,8 @@ def load_manifest(path: Path) -> tuple[dict[str, Any], bytes]:
             _required_string(row, field, rel)
         if kind == "repository" and not str(row["custody_ref"]).startswith("refs/"):
             raise ContractError(f"{rel}: custody_ref must begin with refs/")
+        if kind == "repository" and row["residency"] not in {"remote-default", "control-pin", "laptop"}:
+            raise ContractError(f"{rel}: unsupported repository residency {row['residency']!r}")
         if kind == "ephemeral":
             expires_after = row.get("expires_after")
             if (
@@ -576,6 +578,11 @@ def plan(data: Mapping[str, Any], root: Path) -> tuple[list[Action], list[Action
                 else:
                     canonical_status[rel] = True
                 continue
+            if row["residency"] == "remote-default":
+                # A catalog entry is complete without a local checkout. Limen's
+                # leased acquisition path owns future materialization.
+                canonical_status[rel] = True
+                continue
             legacy = [
                 legacy_rel
                 for legacy_rel in row.get("legacy_paths") or []
@@ -592,7 +599,12 @@ def plan(data: Mapping[str, Any], root: Path) -> tuple[list[Action], list[Action
                     )
                 )
                 canonical_status[rel] = False
+            elif row["residency"] == "control-pin":
+                blockers.append(Action("blocked", rel, "control repository pin is absent; acquire through Limen"))
+                canonical_status[rel] = False
             else:
+                # Legacy laptop rows retain the bootstrap contract until their
+                # consumers migrate; no active manifest row uses this policy.
                 actions.append(Action("clone", rel, str(row["remote"])))
                 canonical_status[rel] = True
 
@@ -955,6 +967,8 @@ def verify(data: Mapping[str, Any], root: Path) -> list[Action]:
         if rel in unsafe or _blocked_ancestor(rel, {path: False for path in unsafe}):
             continue
         path = safe_paths[rel]
+        if not path.exists() and row["kind"] == "repository" and row["residency"] == "remote-default":
+            continue
         if not path.exists():
             failures.append(Action("verify-fail", rel, "declared entry is absent"))
         elif row["kind"] in DIRECTORY_KINDS and (
