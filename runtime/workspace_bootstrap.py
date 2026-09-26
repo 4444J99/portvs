@@ -166,8 +166,10 @@ def load_manifest(path: Path) -> tuple[dict[str, Any], bytes]:
             _required_string(row, field, rel)
         if kind == "repository" and not str(row["custody_ref"]).startswith("refs/"):
             raise ContractError(f"{rel}: custody_ref must begin with refs/")
-        if kind == "repository" and row["residency"] not in {"remote-default", "control-pin", "laptop"}:
+        if kind == "repository" and row["residency"] not in {"remote-default", "control-pin", "workload-pin", "laptop"}:
             raise ContractError(f"{rel}: unsupported repository residency {row['residency']!r}")
+        if kind == "repository" and row["residency"] == "workload-pin":
+            _required_string(row, "pin_reason", rel)
         if kind == "repository" and row["residency"] != "laptop":
             repository_id = row.get("repository_id")
             if not isinstance(repository_id, int) or isinstance(repository_id, bool) or repository_id <= 0:
@@ -603,8 +605,9 @@ def plan(data: Mapping[str, Any], root: Path) -> tuple[list[Action], list[Action
                     )
                 )
                 canonical_status[rel] = False
-            elif row["residency"] == "control-pin":
-                blockers.append(Action("blocked", rel, "control repository pin is absent; acquire through Limen"))
+            elif row["residency"] in {"control-pin", "workload-pin"}:
+                pin_kind = row["residency"].removesuffix("-pin")
+                blockers.append(Action("blocked", rel, f"{pin_kind} repository pin is absent; acquire through Limen"))
                 canonical_status[rel] = False
             else:
                 # Legacy laptop rows retain the bootstrap contract until their
