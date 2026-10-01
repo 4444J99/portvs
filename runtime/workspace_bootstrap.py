@@ -584,11 +584,6 @@ def plan(data: Mapping[str, Any], root: Path) -> tuple[list[Action], list[Action
                 else:
                     canonical_status[rel] = True
                 continue
-            if row["residency"] == "remote-default":
-                # A catalog entry is complete without a local checkout. Limen's
-                # leased acquisition path owns future materialization.
-                canonical_status[rel] = True
-                continue
             legacy = [
                 legacy_rel
                 for legacy_rel in row.get("legacy_paths") or []
@@ -604,6 +599,10 @@ def plan(data: Mapping[str, Any], root: Path) -> tuple[list[Action], list[Action
                         + ", ".join(legacy),
                     )
                 )
+                canonical_status[rel] = False
+            elif row["residency"] == "remote-default":
+                # Catalog absence is allowed, but cannot satisfy a compatibility
+                # link's requirement for a physical canonical target.
                 canonical_status[rel] = False
             elif row["residency"] in {"control-pin", "workload-pin"}:
                 pin_kind = row["residency"].removesuffix("-pin")
