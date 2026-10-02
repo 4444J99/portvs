@@ -1744,11 +1744,13 @@ def test_remote_default_repository_remains_catalog_only(tmp_path: Path) -> None:
     assert verified.returncode == 0, verified.stdout + verified.stderr
 
 
-def test_missing_control_pin_requires_managed_acquisition(tmp_path: Path) -> None:
+@pytest.mark.parametrize("residency", ["control-pin", "workload-pin"])
+def test_missing_control_or_workload_pin_requires_managed_acquisition(tmp_path: Path, residency: str) -> None:
     manifest, workspace, _ = _manifest(tmp_path)
     data = _load(manifest)
     repository = next(row for row in data["rows"] if row["kind"] == "repository")
-    repository["residency"] = "control-pin"
+    repository["residency"] = residency
+    repository["pin_reason"] = "Protected active workload"
     repository["repository_id"] = 77123
     _write(manifest, data)
     plan = _run(manifest, workspace, "--plan", "--json")
@@ -1756,6 +1758,52 @@ def test_missing_control_pin_requires_managed_acquisition(tmp_path: Path) -> Non
     report = json.loads(plan.stdout)
     assert any(row["path"] == repository["path"] for row in report["blockers"])
     assert not any(row["operation"] == "clone" for row in report["actions"])
+
+
+def test_remote_default_preserves_legacy_source(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path, include_legacy=True)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository.update(residency="remote-default", repository_id=77123)
+    _write(manifest, data)
+    (workspace / "tool-old").mkdir(parents=True)
+    report = json.loads(_run(manifest, workspace, "--plan", "--json").stdout)
+    assert any("legacy source present" in row["detail"] for row in report["blockers"])
+    assert not any(row["operation"] == "clone" for row in report["actions"])
+
+
+def test_remote_default_absence_blocks_compatibility_links(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository.update(residency="remote-default", repository_id=77123)
+    data["migration"]["compatibility_links"] = [_compatibility_link("tool-link", repository["path"])]
+    data["limits"]["max_compatibility_links"] = 1
+    _write(manifest, data)
+    applied = _run(manifest, workspace, "--json")
+    assert applied.returncode == 1
+    report = json.loads(applied.stdout)
+    assert any(row["path"] == "tool-link" and "compatibility target" in row["detail"]
+               for row in report["blockers"])
+    assert not (workspace / "tool-link").is_symlink()
+
+
+def test_workload_pin_requires_reason(tmp_path: Path) -> None:
+    manifest, workspace, _ = _manifest(tmp_path)
+    data = _load(manifest)
+    repository = next(row for row in data["rows"] if row["kind"] == "repository")
+    repository.update(residency="workload-pin", repository_id=77123)
+    _write(manifest, data)
+    result = _run(manifest, workspace, "--plan", "--json")
+    assert result.returncode != 0
+    assert "pin_reason" in result.stdout
+
+
+def test_declared_controls_are_remote_default() -> None:
+    data, _ = workspace_bootstrap.load_manifest(MANIFEST)
+    rows = {row["repository_id"]: row for row in data["rows"] if row["kind"] == "repository"}
+    for identity in {1257137342, 1255213941, 1124448005}:
+        assert rows[identity]["residency"] == "remote-default"
 
 
 def test_managed_repository_requires_immutable_id(tmp_path: Path) -> None:

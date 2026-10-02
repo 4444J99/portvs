@@ -81,12 +81,14 @@ rows:
     default_branch: main
     legacy_paths: [4444J99/organvm-corpvs-testamentvm]
 
+  # Remote-default is desired residency, not deletion authority. Existing control
+  # sources remain retained until Domus #397 detaches their actual consumers.
   - {path: library/engine, kind: structural, owner_ref: "organvm/portvs#workspace-manifest", residency: structural}
   - {path: library/engine/organvm, kind: structural, owner_ref: "organvm", residency: structural}
   - path: library/engine/organvm/portvs
     kind: repository
     owner_ref: organvm/portvs
-    residency: control-pin
+    residency: remote-default
     repository_id: 1257137342
     remote: https://github.com/4444J99/portvs.git
     custody_ref: refs/remotes/origin/main
@@ -95,7 +97,7 @@ rows:
   - path: library/engine/organvm/limen
     kind: repository
     owner_ref: organvm/limen
-    residency: control-pin
+    residency: remote-default
     repository_id: 1255213941
     remote: https://github.com/4444J99/limen.git
     custody_ref: refs/remotes/origin/main
@@ -104,7 +106,7 @@ rows:
   - path: library/engine/organvm/domus-genoma
     kind: repository
     owner_ref: organvm/domus-genoma
-    residency: control-pin
+    residency: remote-default
     repository_id: 1124448005
     remote: https://github.com/4444J99/domus-genoma.git
     custody_ref: refs/remotes/origin/main
